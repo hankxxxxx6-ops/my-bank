@@ -1,0 +1,72 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+
+<link rel="stylesheet" href="111.css">
+    <meta charset="utf-8" />
+    <style>
+        .summary { display: flex; gap: 20px; margin-top: 20px; }
+        .card { border: 1px solid #ccc; padding: 10px; border-radius: 8px; text-align: center; min-width: 100px; }
+        .big { font-size: 1.5rem; font-weight: bold; color: #2c3e50; }
+        #list { margin-top: 20px; font-family: monospace; }
+    </style>
+    <script>
+        function calc() {
+            // 1. 取得數值 (修正 ID 匹配)
+            var a = parseFloat(document.getElementById("a").value) || 0; // 每月投入
+            var b = parseFloat(document.getElementById("b").value) / 100 || 0; // 年利率轉為小數
+            var c = parseFloat(document.getElementById("c").value) || 0; // 初始本金
+            
+            var monthlyRate = b / 12;
+            var resultHtml = "";
+            var years = 30; // 預設計算 30 年
+
+            for (var i = 1; i <= years; i++) {
+                var months = i * 12;
+                var futureValue;
+                
+                if (monthlyRate === 0) {
+                    futureValue = a * months + c;
+                } else {
+                    // 複利公式：每月投入的年金終值 + 初始本金的複利終值
+                    futureValue = a * ((Math.pow(1 + monthlyRate, months) - 1) / monthlyRate) + 
+                                  c * Math.pow(1 + monthlyRate, months);
+                }
+                
+                resultHtml += i + "年 = " + Math.round(futureValue).toLocaleString() + " 元<br>";
+
+                // 當迴圈跑到最後一年，更新上方的卡片資訊
+                if (i === years) {
+                    var totalInvest = c + (a * months);
+                    document.getElementById("final").innerText = Math.round(futureValue).toLocaleString();
+                    document.getElementById("invest").innerText = totalInvest.toLocaleString();
+                    document.getElementById("profit").innerText = Math.round(futureValue - totalInvest).toLocaleString();
+                }
+            }
+            document.getElementById("list").innerHTML = resultHtml;
+        }
+
+        // 網頁載入時先執行一次
+        window.onload = calc;
+    </script>
+</head>
+<body>
+    <h3>複利試算器 (30年期)</h3>
+    <p>
+        <label>每月投入金額</label>
+        <input type="number" id="a" oninput="calc()" value="5000"><br>
+        <label>年報酬率 (%)</label>
+        <input type="number" id="b" oninput="calc()" value="6"><br>
+        <label>初始本金</label>
+        <input type="number" id="c" oninput="calc()" value="100000"><br>
+    </p>
+
+    <div class="summary">
+        <div class="card">總資產 (30年後)<div class="big" id="final">0</div></div>
+        <div class="card">總投入本金<div class="big" id="invest">0</div></div>
+        <div class="card">預估獲利<div class="big" id="profit">0</div></div>
+    </div>
+
+    <div id="list"></div>
+</body>
+</html>
